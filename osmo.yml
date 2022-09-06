@@ -1,0 +1,110 @@
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  become: yes
+  tasks:
+
+    - name: Install packages for building
+      apt:
+        name: build-essential,libtool,libtalloc-dev,libsctp-dev,shtool,autoconf,automake,git-core,pkg-config,make,gcc,gnutls-dev,python-minimal,shtool,git-core,libmnl-dev
+#,libusb-1.0.0-dev,libpcsclite-dev
+        state: present
+        update_cache: yes
+
+    - name: Clone newest libosmocore from gitea.osmocom.org
+      git:
+        repo: https://gitea.osmocom.org/osmocom/libosmocore.git
+        dest: ~/repos/libosmocore/
+        clone: yes
+        update: yes
+
+    - name: Clone OsmocomBB from gitea.osmocom.org
+      git:
+        repo: https://gitea.osmocom.org/phone-side/osmocom-bb.git
+        dest: ~/repos/osmocom-bb/
+        clone: yes
+        update: yes
+
+    - name: Build libosmocore
+      command: "{{ item }}"
+      args:                                                                     
+        chdir: ~/repos/libosmocore
+        creates: /usr/local/lib/libosmocore.so
+      with_items:
+        - "autoreconf -i"
+        - "./configure"
+        - "make"
+        - "make install"
+        - "ldconfig -i"
+
+    - name: Build osmocom-bb
+      command: "{{ item }}"
+      args:
+        chdir: ~/repos/osmocom-bb/src/host/layer23
+        creates: /usr/local/bin/mobile
+      with_items:
+        - "make"
+        - "make install"
+
+    - name: Copy configfile for virtual MSs
+      copy:
+        src: ~/repos/osmocom-bb/doc/examples/mobile/default.cfg
+        dest: "{{ item }}"
+        owner: root
+        group: root
+        mode: 644
+      with_items:
+        - "/etc/osmocom/ms1.cfg"
+        - "/etc/osmocom/ms2.cfg"
+
+    - name: Install osmo packages
+      apt:
+        name: osmo-hlr,osmo-msc,osmo-mgw,osmo-bsc,osmo-bts,osmo-stp
+        state: present
+        update_cache: yes
+
+    - name: Start HLR
+      systemd:
+        name: osmo-hlr
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Start STP
+      systemd:
+        name: osmo-stp
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Start MGW
+      systemd:
+        name: osmo-mgw
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Start MSC
+      systemd:
+        name: osmo-msc
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Start BSC
+      systemd:
+        name: osmo-bsc
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Copy service file for virtual BTS
+      copy:
+        src: systemd/osmo-bts-virtual.service
+        dest: /lib/systemd/system/osmo-bts-virtual.service
+        owner: root
+        group: root
+        mode: 644
+
+
