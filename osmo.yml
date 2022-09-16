@@ -1,14 +1,14 @@
 ---
-- hosts: localhost
+- hosts: osmo1
   gather_facts: no
-  connection: local
+  #connection: local
+
   become: yes
   tasks:
 
     - name: Install packages for building
       apt:
-        name: build-essential,libtool,libtalloc-dev,libsctp-dev,shtool,autoconf,automake,git-core,pkg-config,make,gcc,gnutls-dev,python-minimal,shtool,git-core,libmnl-dev
-#,libusb-1.0.0-dev,libpcsclite-dev
+        name: build-essential,libtool,libtalloc-dev,libsctp-dev,shtool,autoconf,automake,git-core,pkg-config,make,gcc,gnutls-dev,shtool,git-core,libmnl-dev,libpcsclite-dev,libpcsclite1,libusb-1.0-0-dev,libusb-1.0-0
         state: present
         update_cache: yes
 
@@ -44,19 +44,13 @@
         chdir: ~/repos/osmocom-bb/src/host/layer23
         creates: /usr/local/bin/mobile
       with_items:
+        - "autoreconf -i"
+        - "./configure"
         - "make"
         - "make install"
 
-    - name: Copy configfile for virtual MSs
-      copy:
-        src: ~/repos/osmocom-bb/doc/examples/mobile/default.cfg
-        dest: "{{ item }}"
-        owner: root
-        group: root
-        mode: 644
-      with_items:
-        - "/etc/osmocom/ms1.cfg"
-        - "/etc/osmocom/ms2.cfg"
+# Bør også laste ned https://github.com/osmocom/osmo-bts
+# Her kan man hente configfiler for bts-virtual
 
     - name: Install osmo packages
       apt:
@@ -101,10 +95,42 @@
 
     - name: Copy service file for virtual BTS
       copy:
-        src: systemd/osmo-bts-virtual.service
+        src: osmo-bts-virtual.service
         dest: /lib/systemd/system/osmo-bts-virtual.service
         owner: root
         group: root
         mode: 644
 
+    - name: Copy configfile for virtual BTS
+      copy:
+        src: osmo-bts-virtual.cfg
+        dest: /etc/osmocom/osmo-bts-virtual.cfg
+        owner: root
+        group: root
+        mode: 644 
+
+    - name: Change basic config for virtual BTS
+      ansible.builtin.lineinfile:
+        path: /etc/osmocom/osmo-bts-virtual.cfg
+        regexp: 'ipa unit-id'
+        line: ipa unit-id 1800 0
+
+    - name: Start BTS
+      systemd:
+        name: osmo-bts
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Copy configfile for virtual MSs
+      copy:
+        src: ~/repos/osmocom-bb/doc/examples/mobile/default.cfg
+        dest: "{{ item }}"
+        owner: root
+        group: root
+        mode: 644
+        remote_src: yes
+      with_items:
+        - "/etc/osmocom/ms1.cfg"
+        - "/etc/osmocom/ms2.cfg"
 
