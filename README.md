@@ -1,20 +1,26 @@
 # osmo-install
 
+This is a guide to set up a lab for virtual Osmocom GSM. Both CS core and RAN. The setup is based on Ansible
+
+
 On osmo server:
     apt install python python-apt
 
+
     visudo
-    user ALL=(ALL) NOPASSWD:ALL
+
+>osmouser ALL=(ALL) NOPASSWD:ALL
 
 
 On management client:
 
     apt install ansible
 
+
 ~/.ssh/config
->Host osmo1
->    Hostname 192.168.56.100
->    Username osmouser
+>Host osmo1<br>
+>    Hostname 192.168.56.100<br>
+>    Username osmouser<br>
 
     ssh-copy-id osmo1
 
@@ -41,7 +47,7 @@ HLR
     telnet 0  4258
 
 MSC
-    telnet 0 4255
+    telnet 0 4254
 
 MGW
     telnet 0 4243
@@ -57,3 +63,27 @@ BTS
 
 MS
     telnet 0 4247
+
+
+## Create users
+Login to HLR
+telnet 0 4258
+    ena
+    subscriber imsi 001010000000001
+    subscriber imsi 001010000000002
+    subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
+    subscriber id 1 update msisdn 555501
+    subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
+    subscriber id 2 update msisdn 555502
+
+
+## Start phones
+
+Virtphy
+virtphy has to be started before turning on the MS
+    virtphy
+
+Mobile
+    mobile -c /etc/osmocom/ms1.cfg
+
+    mobile -c /etc/osmocom/ms2.cfg

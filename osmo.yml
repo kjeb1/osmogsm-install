@@ -38,11 +38,22 @@
         - "make install"
         - "ldconfig -i"
 
-    - name: Build osmocom-bb
+    - name: Build mobile from osmocom-bb
       command: "{{ item }}"
       args:
         chdir: ~/repos/osmocom-bb/src/host/layer23
         creates: /usr/local/bin/mobile
+      with_items:
+        - "autoreconf -i"
+        - "./configure"
+        - "make"
+        - "make install"
+
+    - name: Build virtphy from osmocom-bb
+      command: "{{ item }}"
+      args:
+        chdir: ~/repos/osmocom-bb/src/host/virt_phy
+        creates: /usr/local/bin/virtphy
       with_items:
         - "autoreconf -i"
         - "./configure"
