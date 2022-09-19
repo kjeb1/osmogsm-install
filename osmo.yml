@@ -1,147 +1,97 @@
----
-- hosts: osmo1
-  gather_facts: no
-  #connection: local
+# osmo-install
 
-  become: yes
-  tasks:
+This is a guide to set up a lab for virtual Osmocom GSM. Both CS core and RAN. The setup is based on Ansible
 
-    - name: Install packages for building
-      apt:
-        name: build-essential,libtool,libtalloc-dev,libsctp-dev,shtool,autoconf,automake,git-core,pkg-config,make,gcc,gnutls-dev,shtool,git-core,libmnl-dev,libpcsclite-dev,libpcsclite1,libusb-1.0-0-dev,libusb-1.0-0
-        state: present
-        update_cache: yes
+~/.ssh/config
+>Host osmo1<br>
+>    Hostname 192.168.56.100<br>
+>    Username osmouser<br>
 
-    - name: Clone newest libosmocore from gitea.osmocom.org
-      git:
-        repo: https://gitea.osmocom.org/osmocom/libosmocore.git
-        dest: ~/repos/libosmocore/
-        clone: yes
-        update: yes
+    ssh-copy-id osmo1
 
-    - name: Clone OsmocomBB from gitea.osmocom.org
-      git:
-        repo: https://gitea.osmocom.org/phone-side/osmocom-bb.git
-        dest: ~/repos/osmocom-bb/
-        clone: yes
-        update: yes
+On osmo server:
+    apt install python python-apt
 
-    - name: Build libosmocore
-      command: "{{ item }}"
-      args:                                                                     
-        chdir: ~/repos/libosmocore
-        creates: /usr/local/lib/libosmocore.so
-      with_items:
-        - "autoreconf -i"
-        - "./configure"
-        - "make"
-        - "make install"
-        - "ldconfig -i"
 
-    - name: Build mobile from osmocom-bb
-      command: "{{ item }}"
-      args:
-        chdir: ~/repos/osmocom-bb/src/host/layer23
-        creates: /usr/local/bin/mobile
-      with_items:
-        - "autoreconf -i"
-        - "./configure"
-        - "make"
-        - "make install"
+    visudo
 
-    - name: Build virtphy from osmocom-bb
-      command: "{{ item }}"
-      args:
-        chdir: ~/repos/osmocom-bb/src/host/virt_phy
-        creates: /usr/local/bin/virtphy
-      with_items:
-        - "autoreconf -i"
-        - "./configure"
-        - "make"
-        - "make install"
+>osmouser ALL=(ALL) NOPASSWD:ALL
 
-# Bør også laste ned https://github.com/osmocom/osmo-bts
-# Her kan man hente configfiler for bts-virtual
 
-    - name: Install osmo packages
-      apt:
-        name: osmo-hlr,osmo-msc,osmo-mgw,osmo-bsc,osmo-bts,osmo-stp
-        state: present
-        update_cache: yes
+On management client:
 
-    - name: Start HLR
-      systemd:
-        name: osmo-hlr
-        state: started
-        daemon_reload: yes
-        enabled: yes
+    apt install ansible
 
-    - name: Start STP
-      systemd:
-        name: osmo-stp
-        state: started
-        daemon_reload: yes
-        enabled: yes
 
-    - name: Start MGW
-      systemd:
-        name: osmo-mgw
-        state: started
-        daemon_reload: yes
-        enabled: yes
 
-    - name: Start MSC
-      systemd:
-        name: osmo-msc
-        state: started
-        daemon_reload: yes
-        enabled: yes
+Test
+    ansible osmo1 -i hosts -m ping
 
-    - name: Start BSC
-      systemd:
-        name: osmo-bsc
-        state: started
-        daemon_reload: yes
-        enabled: yes
 
-    - name: Copy service file for virtual BTS
-      copy:
-        src: osmo-bts-virtual.service
-        dest: /lib/systemd/system/osmo-bts-virtual.service
-        owner: root
-        group: root
-        mode: 644
+    osmo1 | SUCCESS => {
+        "ansible_facts": {
+            "discovered_interpreter_python": "/usr/bin/python"
+        },
+        "changed": false,
+        "ping": "pong"
+    }
 
-    - name: Copy configfile for virtual BTS
-      copy:
-        src: osmo-bts-virtual.cfg
-        dest: /etc/osmocom/osmo-bts-virtual.cfg
-        owner: root
-        group: root
-        mode: 644 
 
-    - name: Change basic config for virtual BTS
-      ansible.builtin.lineinfile:
-        path: /etc/osmocom/osmo-bts-virtual.cfg
-        regexp: 'ipa unit-id'
-        line: ipa unit-id 1800 0
+    ansible-playbook -i hosts osmo.yml
 
-    - name: Start BTS
-      systemd:
-        name: osmo-bts
-        state: started
-        daemon_reload: yes
-        enabled: yes
 
-    - name: Copy configfile for virtual MSs
-      copy:
-        src: ~/repos/osmocom-bb/doc/examples/mobile/default.cfg
-        dest: "{{ item }}"
-        owner: root
-        group: root
-        mode: 644
-        remote_src: yes
-      with_items:
-        - "/etc/osmocom/ms1.cfg"
-        - "/etc/osmocom/ms2.cfg"
+# Management on osmo server
 
+HLR
+    telnet 0  4258
+
+MSC
+    telnet 0 4254
+
+MGW
+    telnet 0 4243
+
+BSC
+    telnet 0 4242
+
+STP
+    telnet 0 4239
+
+BTS
+    telnet 0 4241
+
+MS
+    telnet 0 4247
+
+
+## Create users
+Login to HLR
+telnet 0 4258
+    ena
+    subscriber imsi 001010000000001 create
+    subscriber imsi 001010000000002 create
+    subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
+    subscriber id 1 update msisdn 555501
+    subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
+    subscriber id 2 update msisdn 555502
+
+
+## Start phones
+
+[Virtual Air Interface](https://osmocom.org/projects/cellular-infrastructure/wiki/Virtual_Um)
+
+Virtphy
+virtphy has to be started before turning on the MS
+    virtphy
+
+Mobile
+    mobile -c /etc/osmocom/mobile.cfg
+
+    telnet 0 4247
+
+    ena
+    conf t
+    ms 1
+    shut
+    sim test
+    no shut
