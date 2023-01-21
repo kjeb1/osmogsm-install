@@ -31,8 +31,15 @@ apt install ansible
 ssh-copy-id osmo-server
 ```
 
+Download git repo:
+```
+git clone git@github.com:kjeb1/osmo-install.git
+```
+    
+    
 Test Ansible: 
 ```
+cd osmo-install
 ansible osmo-server -i hosts -m ping
 ```
 
