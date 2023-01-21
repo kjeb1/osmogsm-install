@@ -12,7 +12,9 @@ apt install python python-apt
 ```
 
 Give "osmo" user access to sudo: 
-```visudo```
+```
+visudo /etc/sudoers.d/osmo
+```
 >osmo ALL=(ALL) NOPASSWD:ALL
 
 On management client or the host:
