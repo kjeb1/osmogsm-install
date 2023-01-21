@@ -24,8 +24,8 @@ apt install ansible
 
 `~/.ssh/config`
 >Host osmo-server<br>
->    Hostname 192.168.0.100<br>
->    Username osmo<br>
+>    Hostname <VM IP><br>
+>    User osmo<br>
 
 ```
 ssh-copy-id osmo-server
