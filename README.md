@@ -2,30 +2,39 @@
 
 This is a guide to set up a lab for virtual Osmocom GSM network. Both CS core and RAN. The setup is based on Ansible
 
-This guide is tested on a Ubuntu 20.04 running in virtualbox. The virtual machine is refered as "osmo server". One user, named "user" have to be added.
+This guide is tested on a Ubuntu 20.04 running in Virtual Box. The virtual machine is refered as "osmo server". One user, named "osmo" have to be added. I recomand to use "Bridged network" for the VM.
 
 On osmo server:
 
-Install required packages: `apt install python python-apt`
+Install Ansible required packages: 
+```
+apt install python python-apt
+```
 
-Give "user" access to sudo: `visudo`
->osmouser ALL=(ALL) NOPASSWD:ALL
+Give "osmo" user access to sudo: 
+```visudo```
+>osmo ALL=(ALL) NOPASSWD:ALL
 
-On management client or the host: `apt install ansible`
+On management client or the host:
+```
+apt install ansible
+```
 
-`nano ~/.ssh/config`
+`~/.ssh/config`
 >Host osmo-server<br>
->    Hostname 192.168.56.100<br>
->    Username user<br>
+>    Hostname 192.168.0.100<br>
+>    Username osmo<br>
 
-`ssh-copy-id osmo-server`
-
+```
+ssh-copy-id osmo-server
+```
 
 Test Ansible: 
-`ansible osmo1 -i hosts -m ping`
+```
+ansible osmo-server -i hosts -m ping
+```
 
-
-    osmo1 | SUCCESS => {
+    osmo-server | SUCCESS => {
         "ansible_facts": {
             "discovered_interpreter_python": "/usr/bin/python"
         },
@@ -34,10 +43,13 @@ Test Ansible:
     }
 
 
-`ansible-playbook -i hosts osmo.yml`
+Run the playbook for setup the GSM lab
+```
+ansible-playbook -i hosts osmo.yml
+```
 
 
-# Management on osmo server
+# Management on osmo-server
 
 HLR<br>
 `telnet 0  4258`
@@ -76,11 +88,17 @@ subscriber id 2 update msisdn 555502
 
 ## Start phones
 
-Start Virtphy: `virtphy`
+Start Virtphy (virtual RAN): 
+```
+virtphy
+```
 
-Start Mobile: `mobile -c /etc/osmocom/mobile.cfg`
+Start Mobile Station: 
+```
+mobile -c /etc/osmocom/mobile.cfg
+```
 
-Login to Mobile and insert SIM-card
+Login to Mobile Station and insert SIM-card
 `telnet 0 4247`
 ```
 ena
