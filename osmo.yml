@@ -1,7 +1,6 @@
 ---
 - hosts: osmo
   gather_facts: no
-  #connection: local
 
   become: yes
   tasks:
@@ -26,6 +25,20 @@
         clone: yes
         update: yes
 
+    - name: Clone Osmo-bts from Github
+      git:
+        repo: https://github.com/osmocom/osmo-bts
+        dest: ~/repos/osmo-bts/
+        clone: yes
+        update: yes
+
+    - name: Clone libosmo-gprs from Github
+      git:
+        repo: https://github.com/osmocom/libosmo-gprs.git
+        dest: ~/repos/libosmo-gprs/
+        clone: yes
+        update: yes
+
     - name: Build libosmocore
       command: "{{ item }}"
       args:                                                                     
@@ -37,6 +50,17 @@
         - "make"
         - "make install"
         - "ldconfig -i"
+
+    - name: Build libosmo-gprs
+      command: "{{ item }}"
+      args:
+        chdir: ~/repos/libosmo-gprs
+        creates: /usr/local/lib/libosmo-gprs-rlcmac.so
+      with_items:
+        - "autoreconf -i"
+        - "./configure"  
+        - "make"
+        - "make install"
 
     - name: Build mobile from osmocom-bb
       command: "{{ item }}"
@@ -60,9 +84,6 @@
         - "make"
         - "make install"
 
-# Bør også laste ned https://github.com/osmocom/osmo-bts
-# Her kan man hente configfiler for bts-virtual
-
     - name: Install osmo packages
       apt:
         name: osmo-hlr,osmo-msc,osmo-mgw,osmo-bsc,osmo-bts,osmo-stp
@@ -72,64 +93,65 @@
     - name: Start HLR
       systemd:
         name: osmo-hlr
-        state: started
+        state: restarted
         daemon_reload: yes
         enabled: yes
 
     - name: Start STP
       systemd:
         name: osmo-stp
-        state: started
+        state: restarted
         daemon_reload: yes
         enabled: yes
 
     - name: Start MGW
       systemd:
         name: osmo-mgw
-        state: started
+        state: restarted
         daemon_reload: yes
         enabled: yes
 
     - name: Start MSC
       systemd:
         name: osmo-msc
-        state: started
+        state: restarted
         daemon_reload: yes
         enabled: yes
 
     - name: Start BSC
       systemd:
         name: osmo-bsc
-        state: started
+        state: restarted
         daemon_reload: yes
         enabled: yes
 
     - name: Copy service file for virtual BTS
       copy:
-        src: osmo-bts-virtual.service
+        src: ~/repos/osmo-bts/contrib/systemd/osmo-bts-virtual.service
         dest: /lib/systemd/system/osmo-bts-virtual.service
         owner: root
         group: root
         mode: 644
+        remote_src: yes
 
     - name: Copy configfile for virtual BTS
       copy:
-        src: osmo-bts-virtual.cfg
+        src: ~/repos/osmo-bts/doc/examples/virtual/osmo-bts-virtual.cfg
         dest: /etc/osmocom/osmo-bts-virtual.cfg
         owner: root
         group: root
         mode: 644 
-
+        remote_src: yes
     - name: Change basic config for virtual BTS
-      ansible.builtin.lineinfile:
+      lineinfile:
         path: /etc/osmocom/osmo-bts-virtual.cfg
-        regexp: 'ipa unit-id'
-        line: ipa unit-id 1800 0
+        regexp: '^ ipa unit-id'
+        line: ' ipa unit-id 1800 0'
 
     - name: Start BTS
       systemd:
-        name: osmo-bts
-        state: started
+        name: osmo-bts-virtual
+        state: restarted
         daemon_reload: yes
         enabled: yes
 
@@ -143,19 +165,19 @@
         remote_src: yes
 
     - name: Configure IMEI for mobile
-      ansible.builtin.lineinfile:
+      lineinfile:
         path: /etc/osmocom/mobile.cfg
         regexp: '^ imei 000000000000000 0'
         line: ' imei 000000000000001 0'
 
     - name: Configure IMSI for mobile
-      ansible.builtin.lineinfile:
+      lineinfile:
         path: /etc/osmocom/mobile.cfg
         regexp: '^  imsi 001010000000000'
         line: '  imsi 001010000000001'
 
     - name: Configure SIM for mobile
-      ansible.builtin.lineinfile:
+      lineinfile:
         path: /etc/osmocom/mobile.cfg
         regexp: '^ sim reader'
         line: ' sim test'

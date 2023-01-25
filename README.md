@@ -93,8 +93,9 @@ subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
 subscriber id 1 update msisdn 555501
 subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
 subscriber id 2 update msisdn 555502
+subscriber id 1 show
+subscriber id 2 show
 ```
-
 ## Start phones
 
 Start Virtphy (virtual RAN): 
@@ -118,3 +119,11 @@ sim test
 no shut
 ```
 
+BTS
+telnet 0 4241
+show bts 0
+
+Phone
+telnet 0 4247
+show ms
+show cell 1

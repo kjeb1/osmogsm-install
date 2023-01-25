@@ -1,3 +1,2 @@
 [osmo]
-osmo1 
-#ansible_python_interpreter=/usr/bin/python3
+osmo-server ansible_python_interpreter=/usr/bin/python3
