@@ -57,8 +57,42 @@ Run the playbook for setup the GSM lab
 ansible-playbook -i hosts osmo.yml
 ```
 
+## Create users
+Login to HLR
+`telnet 0 4258`
+```
+ena
+subscriber imsi 001010000000001 create
+subscriber imsi 001010000000002 create
+subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
+subscriber id 1 update msisdn 555501
+subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
+subscriber id 2 update msisdn 555502
+subscriber id 1 show
+subscriber id 2 show
+```
 
-# Management on osmo-server
+## Start phone
+
+Start Virtphy (the virtual RAN): 
+```
+virtphy
+```
+
+Start Mobile Station: 
+```
+mobile -c /etc/osmocom/mobile.cfg
+```
+
+
+# Management and testing on osmo-server
+
+MS<br>
+`telnet 0 4247`
+```
+show ms
+show cell 1
+```
 
 HLR<br>
 `telnet 0  4258`
@@ -77,53 +111,7 @@ STP<br>
 
 BTS<br>
 `telnet 0 4241`
-
-MS<br>
-`telnet 0 4247`
-
-
-## Create users
-Login to HLR
-`telnet 0 4258`
 ```
-ena
-subscriber imsi 001010000000001 create
-subscriber imsi 001010000000002 create
-subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
-subscriber id 1 update msisdn 555501
-subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
-subscriber id 2 update msisdn 555502
-subscriber id 1 show
-subscriber id 2 show
-```
-## Start phones
-
-Start Virtphy (virtual RAN): 
-```
-virtphy
-```
-
-Start Mobile Station: 
-```
-mobile -c /etc/osmocom/mobile.cfg
-```
-
-Login to Mobile Station and insert SIM-card
-`telnet 0 4247`
-```
-ena
-conf t
-ms 1
-shut
-sim test
-no shut
-```
-
-BTS
-telnet 0 4241
 show bts 0
+```
 
-Phone
-telnet 0 4247
-show ms
-show cell 1
