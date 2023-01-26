@@ -31,17 +31,17 @@ apt install ansible
 ssh-copy-id osmo-server
 ```
 
+Download git repo:
+```
+git clone git@github.com:kjeb1/osmo-install.git
+```
+
 Alternative to use ssh is to install ansible on the osmo server and run the playbook from there. Then the hosts file should look like this:
 ```
 [osmo]
 osmo-server ansible_host=localhost ansible_connection=local
 ```
 
-Download git repo:
-```
-git clone git@github.com:kjeb1/osmo-install.git
-```
-    
 Test Ansible: 
 ```
 cd osmo-install
