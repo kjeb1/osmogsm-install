@@ -31,11 +31,16 @@ apt install ansible
 ssh-copy-id osmo-server
 ```
 
+Alternative to use ssh is to install ansible on the osmo server and run the playbook from there. Then the hosts file should look like this:
+```
+[osmo]
+osmo-server ansible_host=localhost ansible_connection=local
+```
+
 Download git repo:
 ```
 git clone git@github.com:kjeb1/osmo-install.git
 ```
-    
     
 Test Ansible: 
 ```
@@ -57,22 +62,8 @@ Run the playbook for setup the GSM lab
 ansible-playbook -i hosts osmo.yml
 ```
 
-## Create users
-Login to HLR
-`telnet 0 4258`
-```
-ena
-subscriber imsi 001010000000001 create
-subscriber imsi 001010000000002 create
-subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
-subscriber id 1 update msisdn 555501
-subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
-subscriber id 2 update msisdn 555502
-subscriber id 1 show
-subscriber id 2 show
-```
 
-## Start phone
+## Start virtual phone
 
 Start Virtphy (the virtual RAN): 
 ```
@@ -90,12 +81,31 @@ mobile -c /etc/osmocom/mobile.cfg
 MS<br>
 `telnet 0 4247`
 ```
-show ms
-show cell 1
+OsmocomBB> show ms 1
+MS '1' is up, service is limited
+  IMEI: 000000000000001
+     IMEISV: 0000000000000010
+     IMEI generation: fixed
+  automatic network selection state: A0 null
+  cell selection state: C0 null
+  radio resource layer state: idle
+  mobility management layer state: MM idle, PLMN search
+
+OsmocomBB> show cell 1
+ARFCN  |MCC    |MNC    |LAC    |cell ID|forb.LA|prio   |min-db |max-pwr|rx-lev
+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------
+
+
 ```
 
 HLR<br>
 `telnet 0  4258`
+```
+OsmoHLR> subscriber id 1 show
+    ID: 1
+    IMSI: 001010000000001
+    MSISDN: none
+```
 
 MSC<br>
 `telnet 0 4254`
@@ -112,6 +122,6 @@ STP<br>
 BTS<br>
 `telnet 0 4241`
 ```
-show bts 0
+OsmoBTS>show bts 0
 ```
 
