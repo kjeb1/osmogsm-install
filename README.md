@@ -62,6 +62,20 @@ Run the playbook for setup the GSM lab
 ansible-playbook -i hosts osmo.yml
 ```
 
+## Create users
+Login to HLR 
+`telnet 0 4258`
+```
+ena
+subscriber imsi 001010000000001 create
+subscriber imsi 001010000000002 create
+subscriber id 1 update aud2g comp128v1 ki 00000000000000000000000000000000
+subscriber id 1 update msisdn 555501
+subscriber id 2 update aud2g comp128v1 ki 00000000000000000000000000000000
+subscriber id 2 update msisdn 555502
+subscriber id 1 show
+subscriber id 2 show
+```
 
 ## Start virtual phone
 
