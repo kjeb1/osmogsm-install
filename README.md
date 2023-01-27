@@ -1,25 +1,25 @@
-# osmogsm-install
+# Install Osmocom GSM lab with Ansible
 
-This is a guide to set up a lab for virtual [Osmocom](https://osmocom.org/) GSM network. Both CS core and RAN. The setup is based on Ansible. 
+This is a Ansible playbook and a guide to set up a lab for virtual [Osmocom](https://osmocom.org/) GSM network. Both CS core and RAN.
 
 The [Osmocom](https://osmocom.org/) project is an umbrella project regarding Open source mobile communications. This includes software and tools implementing a variety of mobile communication standards, including GSM, DECT, TETRA and others.
 
-This guide is tested on a Ubuntu 20.04 running in Virtual Box. The virtual machine is refered as "osmo server". One user, named "osmo" have to be added. I recomand to use "Bridged network" for the VM.
+The guide is tested on a Ubuntu 20.04 running in Virtual Box. The virtual machine is refered as "osmo-server". One user, named "osmo" have to be added. I recomand to use "Bridged network" for the VM (for both ssh access from host and internet access for the VM).
 
-On osmo server:
+On osmo-server:
 
-Install Ansible required packages: 
+Install packages required for Ansible: 
 ```
 apt install python python-apt
 ```
 
-Give "osmo" user access to sudo: 
+Give osmo user access to sudo: 
 ```
 visudo /etc/sudoers.d/osmo
 ```
 >osmo ALL=(ALL) NOPASSWD:ALL
 
-On management client or the host:
+On the host:
 ```
 apt install ansible
 ```
@@ -29,6 +29,7 @@ apt install ansible
 >    Hostname <VM IP><br>
 >    User osmo<br>
 
+Copy your public SSH key to the VM
 ```
 ssh-copy-id osmo-server
 ```
@@ -38,7 +39,7 @@ Download git repo:
 git clone git@github.com:kjeb1/osmogsm-install.git
 ```
 
-Alternative to use ssh is to install ansible on the osmo server and run the playbook from there. Then the hosts file should look like this:
+An alternative to use SSH is to install Ansible on the osmo-server and run the playbook from there. Then the hosts file should look like this:
 ```
 [osmo]
 osmo-server ansible_host=localhost ansible_connection=local
@@ -49,7 +50,6 @@ Test Ansible:
 cd osmogsm-install
 ansible osmo-server -i hosts -m ping
 ```
-
     osmo-server | SUCCESS => {
         "ansible_facts": {
             "discovered_interpreter_python": "/usr/bin/python"
@@ -59,7 +59,7 @@ ansible osmo-server -i hosts -m ping
     }
 
 
-Run the playbook for setup the GSM lab (first dryrun with --check)
+Run the playbook for setup and config of the GSM lab (first dryrun with --check)
 ```
 ansible-playbook -i hosts osmo.yml --check
 ```
