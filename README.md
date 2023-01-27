@@ -63,7 +63,8 @@ ansible-playbook -i hosts osmo.yml
 ```
 
 ## Create users
-Login to HLR 
+
+Login to HLR<br>
 `telnet 0 4258`
 ```
 ena
@@ -77,65 +78,185 @@ subscriber id 1 show
 subscriber id 2 show
 ```
 
-## Start virtual phone
+## Start virtual RAN and phone
 
-Start Virtphy (the virtual RAN): 
-```
-virtphy
-```
-
-Start Mobile Station: 
-```
-mobile -c /etc/osmocom/mobile.cfg
-```
-
-
-# Management and testing on osmo-server
-
-MS<br>
-`telnet 0 4247`
-```
-OsmocomBB> show ms 1
-MS '1' is up, service is limited
-  IMEI: 000000000000001
-     IMEISV: 0000000000000010
-     IMEI generation: fixed
-  automatic network selection state: A0 null
-  cell selection state: C0 null
-  radio resource layer state: idle
-  mobility management layer state: MM idle, PLMN search
-
-OsmocomBB> show cell 1
-ARFCN  |MCC    |MNC    |LAC    |cell ID|forb.LA|prio   |min-db |max-pwr|rx-lev
--------+-------+-------+-------+-------+-------+-------+-------+-------+-------
-
+### Start Virtphy (the virtual RAN)
 
 ```
+root@osmo-server:~# virtphy 
+Fri Jan 27 14:30:29 2023 DVIRPHY virtphy.c:244 Virtual physical layer starting up...
+Fri Jan 27 14:30:29 2023 DVIRPHY virtphy.c:253 Virtual physical layer ready, waiting for l23 app(s) on /tmp/osmocom_l2
+Fri Jan 27 14:31:10 2023 DMAIN virt_l1_model.c:41 MS 0000: allocated
+Fri Jan 27 14:31:10 2023 DL1C l1ctl_sock.c:138 Accepted client (fd=6) from server (fd=5)
+Fri Jan 27 14:31:10 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 1)
+Fri Jan 27 14:31:10 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 1)
+Fri Jan 27 14:31:10 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 1)
+Fri Jan 27 14:31:10 2023 DL1C virt_prim_fbsb.c:56 MS 0000: Rx L1CTL_FBSB_REQ (arfcn=868, flags=0x7)
+Fri Jan 27 14:31:10 2023 DL1C virt_prim_fbsb.c:125 MS 0000: Tx L1CTL_FBSB_CONF (res: 0)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:463 MS 0000: Rx L1CTL_CCCH_MODE_REQ (mode=2)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:724 MS 0000: Tx L1CTL_CCCH_MODE_CONF (mode: 2)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 1)
+Fri Jan 27 14:31:11 2023 DL1C virt_prim_fbsb.c:56 MS 0000: Rx L1CTL_FBSB_REQ (arfcn=868, flags=0x7)
+Fri Jan 27 14:31:11 2023 DL1C virt_prim_fbsb.c:125 MS 0000: Tx L1CTL_FBSB_CONF (res: 0)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:404 MS 0000: Rx L1CTL_PARAM_REQ (ta=0, tx_power=7)
+Fri Jan 27 14:31:11 2023 DL1C virt_prim_rach.c:81 MS 0000: Rx L1CTL_RACH_REQ (ra=0x00, offset=2 combined=1)
+Fri Jan 27 14:31:11 2023 DL1C virt_prim_rach.c:122 MS 0000: Tx L1CTL_RACH_CONF (fn: 13582, arfcn: 868)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:404 MS 0000: Rx L1CTL_PARAM_REQ (ta=0, tx_power=7)
+Fri Jan 27 14:31:11 2023 DL1C virt_prim_rach.c:81 MS 0000: Rx L1CTL_RACH_REQ (ra=0x0d, offset=123 combined=1)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 2)
+Fri Jan 27 14:31:11 2023 DL1C l1ctl_sap.c:404 MS 0000: Rx L1CTL_PARAM_REQ (ta=0, tx_power=7)
+Fri Jan 27 14:31:12 2023 DL1C l1ctl_sap.c:404 MS 0000: Rx L1CTL_PARAM_REQ (ta=0, tx_power=15)
+Fri Jan 27 14:31:12 2023 DL1C l1ctl_sap.c:375 MS 0000: Rx L1CTL_DM_REL_REQ
+Fri Jan 27 14:31:12 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 1)
+Fri Jan 27 14:31:12 2023 DL1C l1ctl_sap.c:702 MS 0000: Tx L1CTL_RESET_CONF (reset_type: 1)
+Fri Jan 27 14:31:12 2023 DL1C virt_prim_fbsb.c:56 MS 0000: Rx L1CTL_FBSB_REQ (arfcn=868, flags=0x7)
+Fri Jan 27 14:31:13 2023 DL1C virt_prim_fbsb.c:125 MS 0000: Tx L1CTL_FBSB_CONF (res: 0)
+Fri Jan 27 14:31:13 2023 DL1C l1ctl_sap.c:517 MS 0000: Rx L1CTL_NEIGH_PM_REQ (list with 0 entries): IGNORED
+```
 
-HLR<br>
+### Start Mobile station (MS)
+
+```
+root@osmo-server:~# mobile -c /etc/osmocom/mobile.cfg 
+Copyright (C) 2010-2015 Andreas Eversberg, Sylvain Munaut, Holger Freyther, Harald Welte
+Contributions by Alex Badea, Pablo Neira, Steve Markgraf and others
+
+License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+<0011> app_mobile.c:278 Mobile '1' initialized, please start phone now!
+<0015> telnet_interface.c:88 Available via telnet 127.0.0.1 4247
+<0001> gsm48_rr.c:1925 Changing CCCH_MODE to 2
+<0001> gsm48_rr.c:1732 Complete set of SI5* for BA(0)
+<0005> gsm48_mm.c:2512 follow-on proceed not supported.
+<0002> gsm322.c:3838 Event unhandled at this state.
+```
+
+
+## Examples, management and testing
+
+### HLR
+
 `telnet 0  4258`
 ```
 OsmoHLR> subscriber id 1 show
     ID: 1
     IMSI: 001010000000001
-    MSISDN: none
+    MSISDN: 555501
+    2G auth: COMP128v1
+             KI=00000000000000000000000000000000
 ```
 
-MSC<br>
-`telnet 0 4254`
+### BTS
 
-MGW<br>
-`telnet 0 4243`
-
-BSC<br>
-`telnet 0 4242`
-
-STP<br>
-`telnet 0 4239`
-
-BTS<br>
 `telnet 0 4241`
 ```
-OsmoBTS>show bts 0
+OsmoBTS> show bts 0
+BTS 0 is of FIXME type in band DCS1800, has CI 0 LAC 1, BSIC 63 and 1 TRX
+  Description: (null)
+  Unit ID: 1800/0/0, OML Stream ID 0x00
+  NM State: Oper 'Enabled', Admin 'Unlocked', Avail 'OK'
+  Site Mgr NM State: Oper 'Enabled', Admin 'unknown 0x0', Avail 'OK'
+  Paging: Queue size 200, occupied 0, lifetime 0s
+  AGCH: Queue limit 12, occupied 0, dropped 0, merged 0, rejected 0, ag-res 1, non-res 2
+  CBCH backlog queue length: 0
+  Paging: queue length 0, buffer space 200
+  OML Link state: connected.
+  TRX 0
+    phy 0 
+  Features:
+    006 OML Alerts                              
+    009 Fullrate speech V1                      
+    010 Halfrate speech V1                      
+    011 Fullrate speech EFR                     
+    012 Fullrate speech AMR                     
+    013 Halfrate speech AMR                     
+  base transceiver station:
+   Received paging requests (Abis):        6 (0/s 0/m 6/h 0/d)
+   Dropped paging requests (Abis):        0 (0/s 0/m 0/h 0/d)
+   Sent paging requests (Um):        4 (0/s 0/m 4/h 0/d)
+   Received RACH requests (Um):        3 (0/s 0/m 3/h 0/d)
+   Dropped RACH requests (Um):        0 (0/s 0/m 0/h 0/d)
+   Received RACH requests (Handover):        0 (0/s 0/m 0/h 0/d)
+   Received RACH requests (CS/Abis):        3 (0/s 0/m 3/h 0/d)
+   Received RACH requests (PS/PCU):        0 (0/s 0/m 0/h 0/d)
+   Received AGCH requests (Abis):        3 (0/s 0/m 3/h 0/d)
+   Sent AGCH requests (Abis):        3 (0/s 0/m 3/h 0/d)
+   Sent AGCH DELETE IND (Abis):        0 (0/s 0/m 0/h 0/d)
 ```
+
+```
+OsmoBTS> show trx 
+TRX 0 of BTS 0 is on ARFCN 868
+Description: (null)
+  RF Nominal Power: 0 dBm, reduced by 0 dB, resulting BS power: 0 dBm
+  NM State: Oper 'Enabled', Admin 'Unlocked', Avail 'OK'
+  RSL State: connected
+  Baseband Transceiver NM State: Oper 'Enabled', Admin 'Unlocked', Avail 'OK'
+  IPA stream ID: 0x00
+```
+
+### MS
+
+`telnet 0 4247`
+```
+OsmocomBB> show ms 1
+MS '1' is up, service is normal
+  IMEI: 000000000000001
+     IMEISV: 0000000000000010
+     IMEI generation: fixed
+  automatic network selection state: A2 on PLMN
+                                     MCC=001 MNC=01 (Test, Test)
+  cell selection state: C3 camped normally
+                        ARFCN=868(DCS) MCC=001 MNC=01 LAC=0x0001 CELLID=0x0000
+                        (Test, Test)
+  radio resource layer state: idle
+  mobility management layer state: MM idle, normal service
+```
+
+```
+OsmocomBB> show cell 1
+ARFCN  |MCC    |MNC    |LAC    |cell ID|forb.LA|prio   |min-db |max-pwr|rx-lev
+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------
+ 868DCS|001    |01     |0x0001 |0x0000 |no     |normal |-110   |   7   |-63
+```
+
+### MSC
+
+`telnet 0 4254`
+```
+OsmoMSC> subscriber msisdn 555501 paging 
+% paging subscriber
+```
+
+```
+OsmoMSC> subscriber msisdn 555501 sms sender msisdn 555502 send 'Test SMS'
+```
+
+```
+root@osmo-server:~# cat .osmocom/bb/sms.txt 
+[SMS from 555502]
+'Test SMS'
+```
+
+### BSC
+
+`telnet 0 4242`<br>
+Do a paging from the MSC and then soon after,
+```
+OsmoBSC> show subscriber all 
+ IMSI             TMSI      LAC    Use
+ 001010000000001  9e234e00      1  1
+```
+
+### MGW
+
+`telnet 0 4243`
+
+### STP
+
+`telnet 0 4239`
+
+
 
