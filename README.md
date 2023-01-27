@@ -57,9 +57,103 @@ ansible osmo-server -i hosts -m ping
     }
 
 
-Run the playbook for setup the GSM lab
+Run the playbook for setup the GSM lab (first dryrun with --check)
+```
+ansible-playbook -i hosts osmo.yml --check
+```
+
 ```
 ansible-playbook -i hosts osmo.yml
+
+PLAY [osmo] ********************************************************************
+
+TASK [Install packages for building] *******************************************
+ok: [osmo-server]
+
+TASK [Clone newest libosmocore from gitea.osmocom.org] *************************
+changed: [osmo-server]
+
+TASK [Clone OsmocomBB from gitea.osmocom.org] **********************************
+changed: [osmo-server]
+
+TASK [Clone Osmo-bts from Github] **********************************************
+ok: [osmo-server]
+
+TASK [Clone libosmo-gprs from Github] ******************************************
+changed: [osmo-server]
+
+TASK [Build libosmocore] *******************************************************
+ok: [osmo-server] => (item=autoreconf -i)
+ok: [osmo-server] => (item=./configure)
+ok: [osmo-server] => (item=make)
+ok: [osmo-server] => (item=make install)
+ok: [osmo-server] => (item=ldconfig -i)
+
+TASK [Build libosmo-gprs] ******************************************************
+ok: [osmo-server] => (item=autoreconf -i)
+ok: [osmo-server] => (item=./configure)
+ok: [osmo-server] => (item=make)
+ok: [osmo-server] => (item=make install)
+
+TASK [Build mobile from osmocom-bb] ********************************************
+ok: [osmo-server] => (item=autoreconf -i)
+ok: [osmo-server] => (item=./configure)
+ok: [osmo-server] => (item=make)
+ok: [osmo-server] => (item=make install)
+
+TASK [Build virtphy from osmocom-bb] *******************************************
+ok: [osmo-server] => (item=autoreconf -i)
+ok: [osmo-server] => (item=./configure)
+ok: [osmo-server] => (item=make)
+ok: [osmo-server] => (item=make install)
+
+TASK [Install osmo packages] ***************************************************
+ok: [osmo-server]
+
+TASK [Start HLR] ***************************************************************
+changed: [osmo-server]
+
+TASK [Start STP] ***************************************************************
+changed: [osmo-server]
+
+TASK [Start MGW] ***************************************************************
+changed: [osmo-server]
+
+TASK [Start MSC] ***************************************************************
+changed: [osmo-server]
+
+TASK [Start BSC] ***************************************************************
+changed: [osmo-server]
+
+TASK [Copy service file for virtual BTS] ***************************************
+ok: [osmo-server]
+
+TASK [Copy configfile for virtual BTS] *****************************************
+changed: [osmo-server]
+
+TASK [Change basic config for virtual BTS] *************************************
+ok: [osmo-server]
+
+TASK [Start BTS] ***************************************************************
+changed: [osmo-server]
+
+TASK [Copy configfile for virtual MSs] *****************************************
+changed: [osmo-server]
+
+TASK [Configure IMEI for mobile] ***********************************************
+ok: [osmo-server]
+
+TASK [Configure IMSI for mobile] ***********************************************
+ok: [osmo-server]
+
+TASK [Configure SIM for mobile] ************************************************
+ok: [osmo-server]
+
+TASK [Create directory for sms inbox] ******************************************
+ok: [osmo-server]
+
+PLAY RECAP *********************************************************************
+osmo-server : ok=24   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0 
 ```
 
 ## Create users
