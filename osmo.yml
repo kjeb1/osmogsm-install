@@ -10,7 +10,7 @@
         state: present
         update_cache: yes
 
-    - name: Clone newest libosmocore from gitea.osmocom.org
+    - name: Clone libosmocore from gitea.osmocom.org
       git:
         repo: https://gitea.osmocom.org/osmocom/libosmocore.git
         dest: ~/repos/libosmocore/
@@ -83,7 +83,7 @@
         - "make"
         - "make install"
 
-    - name: Install osmo packages
+    - name: Install osmo related packages
       apt:
         name: osmo-hlr,osmo-msc,osmo-mgw,osmo-bsc,osmo-bts,osmo-stp
         state: present
@@ -92,35 +92,35 @@
     - name: Start HLR
       systemd:
         name: osmo-hlr
-        state: restarted
+        state: started
         daemon_reload: yes
         enabled: yes
 
     - name: Start STP
       systemd:
         name: osmo-stp
-        state: restarted
+        state: started
         daemon_reload: yes
         enabled: yes
 
     - name: Start MGW
       systemd:
         name: osmo-mgw
-        state: restarted
+        state: started
         daemon_reload: yes
         enabled: yes
 
     - name: Start MSC
       systemd:
         name: osmo-msc
-        state: restarted
+        state: started
         daemon_reload: yes
         enabled: yes
 
     - name: Start BSC
       systemd:
         name: osmo-bsc
-        state: restarted
+        state: started
         daemon_reload: yes
         enabled: yes
 
@@ -147,7 +147,7 @@
         regexp: '^ ipa unit-id'
         line: ' ipa unit-id 1800 0'
 
-    - name: Start BTS
+    - name: Start BTS-virtual
       systemd:
         name: osmo-bts-virtual
         state: restarted
