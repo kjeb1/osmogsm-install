@@ -355,4 +355,16 @@ OsmoBSC> show subscriber all
 `telnet 0 4239`
 
 
+### tcpdump / Wireshark
 
+```
+root@osmo-server:~# tcpdump -i any -w gsm.pcap not tcp port 22
+tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
+1737 packets captured
+2172 packets received by filter
+0 packets dropped by kernel
+```
+dst/src 127.0.0.1 is tcp based core traffic<br>
+dst/src 185/187 is sctp based core traffic<br>
+dst 239.193.23.1 is virtual radio traffic<br>
+[Wireshark](images/gsm.pcap.png)
