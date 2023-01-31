@@ -326,12 +326,18 @@ OsmoMSC> subscriber msisdn 555501 paging
 % paging subscriber
 ```
 
+Make SMS inbox folder
+```
+mkdir -p .osmocom/bb/
+```
+
+Send SMS
 ```
 OsmoMSC> subscriber msisdn 555501 sms sender msisdn 555502 send 'Test SMS'
 ```
 
 ```
-root@osmo-server:~# cat .osmocom/bb/sms.txt 
+cat .osmocom/bb/sms.txt 
 [SMS from 555502]
 'Test SMS'
 ```
