@@ -36,7 +36,7 @@ ssh-copy-id osmo-server
 
 Download git repo:
 ```
-git clone git@github.com:kjeb1/osmogsm-install.git
+git clone https://github.com/kjeb1/osmogsm-install.git
 ```
 
 An alternative to use SSH is to install Ansible on the osmo-server and run the playbook from there. Then the hosts file should look like this:
