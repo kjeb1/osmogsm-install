@@ -196,7 +196,3 @@
         regexp: '^ sim reader'
         line: ' sim test'
 
-    - name: Create directory for sms inbox
-      file:
-        path: ~/.osmocom/bb/
-        state: directory
