@@ -179,7 +179,7 @@ subscriber id 2 show
 ### Start Virtphy (the virtual RAN)
 
 ```
-root@osmo-server:~# virtphy 
+virtphy
 Fri Jan 27 14:30:29 2023 DVIRPHY virtphy.c:244 Virtual physical layer starting up...
 Fri Jan 27 14:30:29 2023 DVIRPHY virtphy.c:253 Virtual physical layer ready, waiting for l23 app(s) on /tmp/osmocom_l2
 Fri Jan 27 14:31:10 2023 DMAIN virt_l1_model.c:41 MS 0000: allocated
@@ -213,7 +213,7 @@ Fri Jan 27 14:31:13 2023 DL1C l1ctl_sap.c:517 MS 0000: Rx L1CTL_NEIGH_PM_REQ (li
 ### Start Mobile station (MS)
 
 ```
-root@osmo-server:~# mobile -c /etc/osmocom/mobile.cfg 
+mobile -c /etc/osmocom/mobile.cfg 
 Copyright (C) 2010-2015 Andreas Eversberg, Sylvain Munaut, Holger Freyther, Harald Welte
 Contributions by Alex Badea, Pablo Neira, Steve Markgraf and others
 
@@ -358,7 +358,7 @@ OsmoBSC> show subscriber all
 ### tcpdump / Wireshark
 
 ```
-root@osmo-server:~# tcpdump -i any -w gsm.pcap not tcp port 22
+tcpdump -i any -w gsm.pcap not tcp port 22
 tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
 1737 packets captured
 2172 packets received by filter
